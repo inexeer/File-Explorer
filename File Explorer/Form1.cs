@@ -14,6 +14,7 @@ namespace File_Explorer
 {
     public partial class FormMain : Form
     {
+        Stack<string> folderCol;
         public FormMain()
         {
             InitializeComponent();
@@ -22,6 +23,8 @@ namespace File_Explorer
         private void FormMain_Load(object sender, EventArgs e)
         {
             PopulateTreeView();
+            folderCol = new Stack<string>();
+            folderCol.Push(@"C:\");
         }
 
         private void PopulateTreeView()
@@ -93,6 +96,9 @@ namespace File_Explorer
             {
                 PopulateListView(e.Node.Tag.ToString());
             }
+            folderCol.Push(e.Node.Tag.ToString());
+            if (folderCol.Count > 1)
+                btnBack.Enabled = true;
         }
 
         private void lvwFiles_DoubleClick(object sender, EventArgs e)
@@ -101,11 +107,24 @@ namespace File_Explorer
             if (lvwFiles.SelectedItems[0].ImageIndex == 0)
             {
                 PopulateListView(path);
+                folderCol.Push(path);
+                if (folderCol.Count > 1)
+                    btnBack.Enabled = true;
             }
             else
             {
                 Process.Start(path);
             }
+        }
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            folderCol.Pop();
+            string path = folderCol.Peek();
+            PopulateListView(path);
+            if (folderCol.Count == 1)
+                btnBack.Enabled = false;
+
         }
     }
 }
